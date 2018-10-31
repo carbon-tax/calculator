@@ -1,0 +1,10 @@
+{
+  "name": "carbon-tax",
+  "version": "0.1.0",
+  "description": "Calculate the impact of a tax on carbon emissions",
+  "main": "index.js",
+  "repository": "https://github.com/carbon-tax/calculator.git",
+  "author": "Timo Uhlmann",
+  "license": "MIT",
+  "private": true
+}
