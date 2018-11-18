@@ -1,6 +1,7 @@
 import copyToClipboard from 'clipboard-copy'
+import markdownTable from 'markdown-table'
 
-import React, { Component } from 'react'
+import React, { Component, createRef } from 'react'
 
 import {
   Button,
@@ -26,6 +27,15 @@ import {
   td
 } from '../util'
 
+const toMarkdownCell = cell => {
+  if (cell.dataset.markdown === 'hidden') {
+    return ''
+  } else {
+    const format = cell.tagName === 'TH' && cell.scope === 'row' ? '**' : ''
+    return `${format}${cell.textContent}${format}`
+  }
+}
+
 export default class TaxTable extends Component {
   constructor (props) {
     super(props)
@@ -39,6 +49,8 @@ export default class TaxTable extends Component {
       taxDeductions: params.has('taxDeductions') ? params.get('taxDeductions').split(',') : []
     }
   }
+
+  tableRef = createRef()
 
   dropdownToggle = name => () => {
     this.setState({
@@ -84,6 +96,20 @@ export default class TaxTable extends Component {
     copyToClipboard(window.location.href)
   }
 
+  onCopyTable = (e) => {
+    const table = this.tableRef.current
+    const isVisible = cell => cell.dataset.markdown !== 'hidden'
+    const rows = [table.tHead, ...Array.from(table.tBodies)].filter(isVisible).reduce(
+      (rows, body) => [
+        ...rows,
+        ...Array.from(body.rows).filter(isVisible)
+      ], [])
+    const data = rows.map((row) => Array.from(row.cells).map(toMarkdownCell))
+    const markdown = markdownTable(data, { align: ['l', 'l', ...YEARS.map(year => 'r')] })
+
+    copyToClipboard(markdown)
+  }
+
   render () {
     const {
       country,
@@ -110,10 +136,10 @@ export default class TaxTable extends Component {
     const expectedTaxes = taxPerKg.map((tax, index) => tax * expectedEmissions[index])
 
     return (
-      <Table responsive>
+      <Table responsive innerRef={this.tableRef}>
         <thead>
           <tr>
-            <th>
+            <th data-markdown='hidden'>
               <Dropdown size='sm' isOpen={this.state.dropdownShare} toggle={this.dropdownToggle('dropdownShare')}>
                 <DropdownToggle color='light'>
                   <Icon icon='share-square' />
@@ -121,6 +147,9 @@ export default class TaxTable extends Component {
                 <DropdownMenu>
                   <DropdownItem onClick={this.onCopyUrl}>
                     <Icon icon='link' /> URL kopieren
+                  </DropdownItem>
+                  <DropdownItem onClick={this.onCopyTable}>
+                    <Icon icon={['fab', 'markdown']} /> Tabelle als Markdown kopieren
                   </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
@@ -146,11 +175,11 @@ export default class TaxTable extends Component {
             { expectedTaxes.map(Math.round).map(td) }
           </tr>
         </tbody>
-        <tbody>
+        <tbody data-markdown={hasTaxDeductions ? '' : 'hidden'}>
           <tr>
             <th scope='row'>Aktuelle Steuereinnahmen</th>
             <th scope='row'>Mrd €</th>
-            <td colSpan='12'>
+            <td colSpan='12' data-markdown='hidden'>
               <Dropdown isOpen={this.state.dropdownTaxDeductions} toggle={this.dropdownToggle('dropdownTaxDeductions')}>
                 <DropdownToggle caret>
                 Auswählen
@@ -173,7 +202,7 @@ export default class TaxTable extends Component {
             taxDeductions.map(tax => (
               <tr key={tax}>
                 <th scope='row'>{t(`country.taxes.${tax}`)}</th>
-                <td><Button size='xs' onClick={() => this.removeTaxDeduction(tax)}>-</Button></td>
+                <td data-markdown='hidden'><Button size='xs' onClick={() => this.removeTaxDeduction(tax)}>-</Button></td>
                 { expectedTaxes.map(() => -country.taxes[tax]).map(Math.round).map(td) }
               </tr>
             ))
@@ -181,7 +210,8 @@ export default class TaxTable extends Component {
           {
             hasTaxDeductions ? (
               <tr>
-                <th scope='row' colSpan='2'>Verbleibende {CO2} Steuer</th>
+                <th scope='row'>Verbleibende {CO2} Steuer</th>
+                <th />
                 { expectedTaxes.map(taxes => taxes - taxDeductions.map(tax => country.taxes[tax]).reduce((sum, current) => sum + current, 0)).map(Math.round).map(td) }
               </tr>
             ) : undefined
