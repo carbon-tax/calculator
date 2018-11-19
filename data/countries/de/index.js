@@ -1,6 +1,22 @@
 import * as globals from '../../globals'
 
 export default {
+  country: {
+    /**
+     * Current emissions, in millions of tons, 2015
+     *
+     * @see https://en.wikipedia.org/wiki/List_of_countries_by_carbon_dioxide_emissions
+     */
+    emissions: 777.905,
+
+    /**
+     * Population, 31.12.2017
+     *
+     * @see https://de.wikipedia.org/wiki/Deutschland
+     */
+    population: 82792351
+  },
+
   emissions: {
     ...globals,
 
@@ -47,14 +63,5 @@ export default {
         apple: 0.55
       }
     }
-  },
-
-  country: {
-    /**
-     * The countries current emissions, in millions of tons as of 2015
-     *
-     * @see https://en.wikipedia.org/wiki/List_of_countries_by_carbon_dioxide_emissions
-     */
-    currentEmissions: 777.905
   }
 }
