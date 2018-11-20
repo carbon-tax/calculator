@@ -5,9 +5,9 @@ export default {
     /**
      * Current emissions, in millions of tons, 2015
      *
-     * @see https://en.wikipedia.org/wiki/List_of_countries_by_carbon_dioxide_emissions
+     * @see https://de.wikipedia.org/wiki/Liste_der_gr%C3%B6%C3%9Ften_Kohlenstoffdioxidemittenten#Nach_L%C3%A4ndern
      */
-    emissions: 777.905,
+    emissions: 798,
 
     /**
      * Population, 31.12.2017
