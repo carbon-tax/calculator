@@ -27,7 +27,7 @@ const createExponential = (factor, initial = 1, offset = 1) => (_, index) => ini
 
 const times = (factor) => (value) => factor * value
 
-const td = (value, index) => <td key={index}>{(value)}</td>
+const td = (value, index) => <td align='right' key={index}>{(value)}</td>
 
 class CarbonCalculator extends Component {
   state = {
@@ -78,13 +78,13 @@ class CarbonCalculator extends Component {
               <th scope='row'>
                 <Flag country='DE' /> Deutschland
               </th>
-              <td>
+              <td align='right'>
                 {largeNumbers.format(country.population)}
               </td>
-              <td>
+              <td align='right'>
                 {twoDecimals.format(country.emissions)}
               </td>
-              <td>
+              <td align='right'>
                 {twoDecimals.format((country.emissions * 1e6) / country.population)}
               </td>
             </tr>
