@@ -5,19 +5,24 @@ import {
   Input,
   InputGroup,
   InputGroupAddon,
-  InputGroupText,
   Table
 } from 'reactstrap'
 
+import Flag from './Flag'
+
+const CO2 = 'CO₂'
+
 // 2019 - 2030
-const years = Array.from(Array(12).keys()).map((year) => 2019 + year)
+const YEARS = Array.from(Array(12).keys()).map((year) => 2019 + year)
+
+const largeNumbers = new Intl.NumberFormat('de-DE', {})
 
 const twoDecimals = new Intl.NumberFormat('de-DE', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const threeDecimals = new Intl.NumberFormat('de-DE', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 })
 
 const formatCurrency = (amount) => amount <= 0.2 ? threeDecimals.format(amount) : twoDecimals.format(amount)
 
-const createLinear = (max) => (_, index, years) => max * ((index + 1) / years.length)
+const createLinear = (max, min = 0) => (_, index, years) => min + (max - min) * ((index + 1) / years.length)
 const createExponential = (factor, initial = 1, offset = 1) => (_, index) => initial * Math.pow(factor, index + offset)
 
 const times = (factor) => (value) => factor * value
@@ -26,62 +31,105 @@ const td = (value, index) => <td key={index}>{(value)}</td>
 
 class CarbonCalculator extends Component {
   state = {
-    tax: 200
+    taxStart: undefined,
+    taxEnd: 200
   }
 
-  onTaxChange = (e) => {
+  onTaxChange = (prop) => (e) => {
     this.setState({
-      tax: parseInt(e.target.value)
+      [prop]: parseInt(e.target.value) || undefined
     })
   }
 
   render () {
     const { country, emissions, t } = this.props
-    const { tax } = this.state
+    const { taxStart, taxEnd } = this.state
 
-    const taxPerTon = years.map(createLinear(tax))
+    // If there is a taxStart, 2019 should start with it.
+    // Otherwise, the first value is also interpolated.
+    const years = taxStart ? YEARS.slice(1) : YEARS
+    const taxPerTon = taxStart ? [taxStart, ...years.map(createLinear(taxEnd, taxStart))]
+      : years.map(createLinear(taxEnd, taxStart))
+
     const taxPerKg = taxPerTon.map((tax) => tax * 1e-3)
-    const expectedEmissions = years.map(createExponential(0.98, country.currentEmissions))
+    const expectedEmissions = YEARS.map(createExponential(0.98, country.emissions))
     // in billions, expectedEmissions are in millions, thus taxPerKg
     const expectedTaxes = taxPerKg.map((tax, index) => tax * expectedEmissions[index])
 
     return (
       <>
+        <Table responsive>
+          <thead>
+            <tr>
+              <th />
+              <th>
+                Einwohnerzahl
+              </th>
+              <th>
+                {CO2} Emissionen [Mio t]
+              </th>
+              <th>
+                Emissionen pro Einwohner [t]
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope='row'>
+                <Flag country='DE' /> Deutschland
+              </th>
+              <td>
+                {largeNumbers.format(country.population)}
+              </td>
+              <td>
+                {twoDecimals.format(country.emissions)}
+              </td>
+              <td>
+                {twoDecimals.format((country.emissions * 1e6) / country.population)}
+              </td>
+            </tr>
+          </tbody>
+        </Table>
         <InputGroup>
-          <InputGroupAddon addonType='prepend'>2015</InputGroupAddon>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <strong>
-                {Math.round(country.currentEmissions)} Millionen Tonnen
-              </strong>
-            </InputGroupText>
-          </InputGroupAddon>
+          <InputGroupAddon addonType='prepend'>2019</InputGroupAddon>
           <Input
             type='number'
-            placeholder='Pro Tonne'
-            value={tax}
-            onChange={this.onTaxChange}
+            placeholder='automatisch'
+            value={taxStart || ''}
+            onChange={this.onTaxChange('taxStart')}
             min='0'
             className='text-right'
           />
-          <InputGroupAddon addonType='append'>€</InputGroupAddon>
+          <Input type='select'>
+            <option>linear</option>
+          </Input>
+          <Input
+            type='number'
+            placeholder='Pro Tonne'
+            value={taxEnd || ''}
+            onChange={this.onTaxChange('taxEnd')}
+            min='0'
+            className='text-right'
+          />
+          <InputGroupAddon addonType='append'>2030</InputGroupAddon>
+          <InputGroupAddon addonType='append'>€/t</InputGroupAddon>
         </InputGroup>
         <Table responsive>
           <thead>
             <tr>
               <th />
               <th>Einheit</th>
-              { years.map((year, index) => <th key={index}>{year}</th>) }
+              { YEARS.map((year, index) => <th key={index}>{year}</th>) }
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th scope='row'>CO₂ Steuer</th>
+              <th scope='row'>{CO2} Steuer</th>
               <th scope='row'>€ / kg</th>
               { taxPerKg.map(formatCurrency).map(td) }
             </tr>
             <tr>
-              <th scope='row'>CO₂-Emissionen</th>
+              <th scope='row'>{CO2}-Emissionen</th>
               <th scope='row'>Mio t</th>
               { expectedEmissions.map(Math.round).map(td) }
             </tr>
@@ -97,7 +145,7 @@ class CarbonCalculator extends Component {
                 <tr>
                   <th>{t(`${emission}.title`)}</th>
                   <td>[{emissions[emission].unit}]</td>
-                  <td colSpan={years.length} />
+                  <td colSpan={YEARS.length} />
                 </tr>
                 {
                   Object.keys(emissions[emission].samples).map((entry) => (
