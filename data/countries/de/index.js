@@ -14,7 +14,21 @@ export default {
      *
      * @see https://de.wikipedia.org/wiki/Deutschland
      */
-    population: 82792351
+    population: 82792351,
+
+    /**
+     * In billion Euros, 2017
+     *
+     * @see https://de.wikipedia.org/wiki/Steueraufkommen_(Deutschland)
+     */
+    taxes: {
+      payroll: 195.524,
+      sales: 170.499,
+      // TODO is there an international equivalent? Is it just tolls?
+      salesImport: 55.857,
+      energy: 41.022,
+      electricity: 6.944
+    }
   },
 
   emissions: {

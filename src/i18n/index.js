@@ -8,6 +8,16 @@ i18next
     resources: {
       de: {
         translation: {
+          country: {
+            taxes: {
+              payroll: 'Lohnsteuer',
+              sales: 'Umsatzsteuer',
+              salesImport: 'Einfuhrumsatzsteuer',
+              energy: 'Energiesteuer',
+              electricity: 'Stromsteuer'
+            }
+          },
+
           fuels: {
             title: 'Kraftstoffe',
             samples: {

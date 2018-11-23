@@ -2,6 +2,11 @@ import React, { Component } from 'react'
 import { withI18n } from 'react-i18next'
 
 import {
+  Button,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
   Input,
   InputGroup,
   InputGroupAddon,
@@ -32,7 +37,9 @@ const td = (value, index) => <td align='right' key={index}>{(value)}</td>
 class CarbonCalculator extends Component {
   state = {
     taxStart: undefined,
-    taxEnd: 200
+    taxEnd: 200,
+    addingTaxDecuctions: false,
+    taxDeductions: []
   }
 
   onTaxChange = (prop) => (e) => {
@@ -41,9 +48,34 @@ class CarbonCalculator extends Component {
     })
   }
 
+  toggleTaxDeductions = () => {
+    this.setState({ addingTaxDeductions: !this.state.addingTaxDeductions })
+  }
+
+  addTaxDeduction = tax => {
+    const { taxDeductions } = this.state
+    this.setState({
+      taxDeductions: [tax, ...taxDeductions]
+    })
+  }
+  removeTaxDeduction = tax => {
+    const { taxDeductions } = this.state
+    const index = taxDeductions.indexOf(tax)
+    this.setState({
+      taxDeductions: [
+        ...taxDeductions.slice(0, index),
+        ...taxDeductions.slice(index + 1)
+      ]
+    })
+  }
+
   render () {
     const { country, emissions, t } = this.props
-    const { taxStart, taxEnd } = this.state
+    const {
+      taxStart,
+      taxEnd,
+      taxDeductions
+    } = this.state
 
     // If there is a taxStart, 2019 should start with it.
     // Otherwise, the first value is also interpolated.
@@ -129,7 +161,7 @@ class CarbonCalculator extends Component {
               { taxPerKg.map(formatCurrency).map(td) }
             </tr>
             <tr>
-              <th scope='row'>{CO2}-Emissionen</th>
+              <th scope='row'>{CO2} Emissionen</th>
               <th scope='row'>Mio t</th>
               { expectedEmissions.map(Math.round).map(td) }
             </tr>
@@ -138,6 +170,47 @@ class CarbonCalculator extends Component {
               <th scope='row'>Mrd €</th>
               { expectedTaxes.map(Math.round).map(td) }
             </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th scope='row'>Aktuelle Steuereinnahmen</th>
+              <th scope='row'>Mrd €</th>
+              <td colSpan='12'>
+                <Dropdown isOpen={this.state.addingTaxDeductions} toggle={this.toggleTaxDeductions}>
+                  <DropdownToggle caret>
+                    Auswählen
+                  </DropdownToggle>
+                  <DropdownMenu onChange={(...args) => console.log('change', args)}>
+                    { Object.keys(country.taxes).map(tax =>
+                      <DropdownItem
+                        key={tax}
+                        disabled={taxDeductions.indexOf(tax) > -1}
+                        onClick={() => this.addTaxDeduction(tax)}
+                      >
+                        {`${t(`country.taxes.${tax}`)} (${Math.round(country.taxes[tax])} Mrd)`}
+                      </DropdownItem>
+                    )}
+                  </DropdownMenu>
+                </Dropdown>
+              </td>
+            </tr>
+            {
+              taxDeductions.map(tax => (
+                <tr key={tax}>
+                  <th scope='row'>{t(`country.taxes.${tax}`)}</th>
+                  <td><Button size='xs' onClick={() => this.removeTaxDeduction(tax)}>-</Button></td>
+                  { expectedTaxes.map(() => -country.taxes[tax]).map(Math.round).map(td) }
+                </tr>
+              ))
+            }
+            {
+              taxDeductions.length > 0 ? (
+                <tr>
+                  <th scope='row' colSpan='2'>Verbleibende {CO2} Steuer</th>
+                  { expectedTaxes.map(taxes => taxes - taxDeductions.map(tax => country.taxes[tax]).reduce((sum, current) => sum + current, 0)).map(Math.round).map(td) }
+                </tr>
+              ) : undefined
+            }
           </tbody>
           {
             Object.keys(emissions).map((emission) => (
