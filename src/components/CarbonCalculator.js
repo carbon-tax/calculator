@@ -36,9 +36,10 @@ const td = (value, index) => <td align='right' key={index}>{(value)}</td>
 
 class CarbonCalculator extends Component {
   state = {
+    dropdownTaxDeductions: false,
+
     taxStart: undefined,
     taxEnd: 200,
-    addingTaxDecuctions: false,
     taxDeductions: []
   }
 
@@ -48,8 +49,10 @@ class CarbonCalculator extends Component {
     })
   }
 
-  toggleTaxDeductions = () => {
-    this.setState({ addingTaxDeductions: !this.state.addingTaxDeductions })
+  dropdownToggle = name => () => {
+    this.setState({
+      [name]: !this.state[name]
+    })
   }
 
   addTaxDeduction = tax => {
@@ -176,7 +179,7 @@ class CarbonCalculator extends Component {
               <th scope='row'>Aktuelle Steuereinnahmen</th>
               <th scope='row'>Mrd €</th>
               <td colSpan='12'>
-                <Dropdown isOpen={this.state.addingTaxDeductions} toggle={this.toggleTaxDeductions}>
+                <Dropdown isOpen={this.state.dropdownTaxDeductions} toggle={this.dropdownToggle('dropdownTaxDeductions')}>
                   <DropdownToggle caret>
                     Auswählen
                   </DropdownToggle>
