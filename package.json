@@ -43,7 +43,8 @@
     "reactstrap": "^6.5.0"
   },
   "scripts": {
-    "start": "webpack-dev-server --mode development -d"
+    "start": "webpack-dev-server --mode development -d",
+    "lint": "standard"
   },
   "standard": {
     "parser": "babel-eslint"
