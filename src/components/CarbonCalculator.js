@@ -14,6 +14,41 @@ import { CO2, twoDecimals } from '../util'
 import TaxTable from './TaxTable'
 import Flag from './Flag'
 
+const Country = ({ emissions, population }) => (
+  <Table responsive>
+    <thead>
+      <tr>
+        <th />
+        <th>
+          Einwohnerzahl
+        </th>
+        <th>
+          {CO2} Emissionen [Mio t]
+        </th>
+        <th>
+          Emissionen pro Einwohner [t]
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope='row'>
+          <Flag country='DE' /> Deutschland
+        </th>
+        <td align='right'>
+          {largeNumbers.format(population)}
+        </td>
+        <td align='right'>
+          {twoDecimals.format(emissions)}
+        </td>
+        <td align='right'>
+          {twoDecimals.format((emissions * 1e6) / population)}
+        </td>
+      </tr>
+    </tbody>
+  </Table>
+)
+
 const largeNumbers = new Intl.NumberFormat('de-DE', {})
 
 class CarbonCalculator extends Component {
@@ -38,38 +73,7 @@ class CarbonCalculator extends Component {
     return (
       <Row>
         <Col>
-          <Table responsive>
-            <thead>
-              <tr>
-                <th />
-                <th>
-                  Einwohnerzahl
-                </th>
-                <th>
-                  {CO2} Emissionen [Mio t]
-                </th>
-                <th>
-                  Emissionen pro Einwohner [t]
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope='row'>
-                  <Flag country='DE' /> Deutschland
-                </th>
-                <td align='right'>
-                  {largeNumbers.format(country.population)}
-                </td>
-                <td align='right'>
-                  {twoDecimals.format(country.emissions)}
-                </td>
-                <td align='right'>
-                  {twoDecimals.format((country.emissions * 1e6) / country.population)}
-                </td>
-              </tr>
-            </tbody>
-          </Table>
+          <Country {...country} />
           <InputGroup>
             <InputGroupAddon addonType='prepend'>2019</InputGroupAddon>
             <Input
