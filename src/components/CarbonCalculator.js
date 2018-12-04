@@ -49,6 +49,33 @@ const Country = ({ emissions, population }) => (
   </Table>
 )
 
+const TaxConfiguration = ({ taxStart, taxEnd, setTaxStart, setTaxEnd }) => (
+  <InputGroup>
+    <InputGroupAddon addonType='prepend'>2019</InputGroupAddon>
+    <Input
+      type='number'
+      placeholder='automatisch'
+      value={taxStart || ''}
+      onChange={setTaxStart}
+      min='0'
+      className='text-right'
+    />
+    <Input type='select'>
+      <option>linear</option>
+    </Input>
+    <Input
+      type='number'
+      placeholder='Pro Tonne'
+      value={taxEnd || ''}
+      onChange={setTaxEnd}
+      min='0'
+      className='text-right'
+    />
+    <InputGroupAddon addonType='append'>2030</InputGroupAddon>
+    <InputGroupAddon addonType='append'>€/t</InputGroupAddon>
+  </InputGroup>
+)
+
 const largeNumbers = new Intl.NumberFormat('de-DE', {})
 
 class CarbonCalculator extends Component {
@@ -74,30 +101,12 @@ class CarbonCalculator extends Component {
       <Row>
         <Col>
           <Country {...country} />
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>2019</InputGroupAddon>
-            <Input
-              type='number'
-              placeholder='automatisch'
-              value={taxStart || ''}
-              onChange={this.onTaxChange('taxStart')}
-              min='0'
-              className='text-right'
-            />
-            <Input type='select'>
-              <option>linear</option>
-            </Input>
-            <Input
-              type='number'
-              placeholder='Pro Tonne'
-              value={taxEnd || ''}
-              onChange={this.onTaxChange('taxEnd')}
-              min='0'
-              className='text-right'
-            />
-            <InputGroupAddon addonType='append'>2030</InputGroupAddon>
-            <InputGroupAddon addonType='append'>€/t</InputGroupAddon>
-          </InputGroup>
+          <TaxConfiguration
+            taxStart={taxStart}
+            taxEnd={taxEnd}
+            setTaxStart={this.onTaxChange('taxStart')}
+            setTaxEnd={this.onTaxChange('taxEnd')}
+          />
           <TaxTable {...{ taxStart, taxEnd }} {...this.props} />
         </Col>
       </Row>
