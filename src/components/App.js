@@ -2,9 +2,7 @@ import React, { Component } from 'react'
 import { hot } from 'react-hot-loader'
 
 import {
-  Col,
-  Container,
-  Row
+  Container
 } from 'reactstrap'
 
 import '../i18n'
@@ -20,11 +18,7 @@ class App extends Component {
       <>
         <MainNav />
         <Container tag='main' className='mt-4'>
-          <Row>
-            <Col>
-              <CarbonCalculator {...countries.de} {...this.props} />
-            </Col>
-          </Row>
+          <CarbonCalculator {...countries.de} {...this.props} />
         </Container>
       </>
     )
