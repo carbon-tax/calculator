@@ -3,9 +3,9 @@ import { withI18n } from 'react-i18next'
 
 import {
   Col,
+  FormGroup,
   Input,
-  InputGroup,
-  InputGroupAddon,
+  Label,
   Row,
   Table
 } from 'reactstrap'
@@ -18,29 +18,32 @@ const Country = ({ emissions, population }) => (
   <Table responsive>
     <thead>
       <tr>
-        <th />
-        <th>
-          Einwohnerzahl
-        </th>
-        <th>
-          {CO2} Emissionen [Mio t]
-        </th>
-        <th>
-          Emissionen pro Einwohner [t]
+        <th scope='row' colSpan={2}>
+          <Flag country='DE' /> Deutschland
         </th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <th scope='row'>
-          <Flag country='DE' /> Deutschland
+          Einwohnerzahl
         </th>
         <td align='right'>
           {largeNumbers.format(population)}
         </td>
+      </tr>
+      <tr>
+        <th>
+          {CO2} Emissionen [Mio t]
+        </th>
         <td align='right'>
           {twoDecimals.format(emissions)}
         </td>
+      </tr>
+      <tr>
+        <th>
+          Emissionen pro Einwohner [t]
+        </th>
         <td align='right'>
           {twoDecimals.format((emissions * 1e6) / population)}
         </td>
@@ -50,30 +53,47 @@ const Country = ({ emissions, population }) => (
 )
 
 const TaxConfiguration = ({ taxStart, taxEnd, setTaxStart, setTaxEnd }) => (
-  <InputGroup>
-    <InputGroupAddon addonType='prepend'>2019</InputGroupAddon>
-    <Input
-      type='number'
-      placeholder='automatisch'
-      value={taxStart || ''}
-      onChange={setTaxStart}
-      min='0'
-      className='text-right'
-    />
-    <Input type='select'>
-      <option>linear</option>
-    </Input>
-    <Input
-      type='number'
-      placeholder='Pro Tonne'
-      value={taxEnd || ''}
-      onChange={setTaxEnd}
-      min='0'
-      className='text-right'
-    />
-    <InputGroupAddon addonType='append'>2030</InputGroupAddon>
-    <InputGroupAddon addonType='append'>€/t</InputGroupAddon>
-  </InputGroup>
+  <>
+    <FormGroup row className='mt-2'>
+      <Label sm={12}>
+        <b>{CO2} Steuer Parameter</b>
+      </Label>
+    </FormGroup>
+    <FormGroup row>
+      <Label sm={3}>2019</Label>
+      <Col sm={9}>
+        <Input
+          type='number'
+          placeholder='automatisch'
+          value={taxStart || ''}
+          onChange={setTaxStart}
+          min='0'
+          className='text-right'
+        />
+      </Col>
+    </FormGroup>
+    <FormGroup row>
+      <Label sm={3}>2030</Label>
+      <Col sm={9}>
+        <Input
+          type='number'
+          placeholder='Pro Tonne'
+          value={taxEnd || ''}
+          onChange={setTaxEnd}
+          min='0'
+          className='text-right'
+        />
+      </Col>
+    </FormGroup>
+    <FormGroup row>
+      <Label sm={3}>Erhöhung</Label>
+      <Col sm={9}>
+        <Input type='select'>
+          <option>linear</option>
+        </Input>
+      </Col>
+    </FormGroup>
+  </>
 )
 
 const largeNumbers = new Intl.NumberFormat('de-DE', {})
@@ -98,18 +118,26 @@ class CarbonCalculator extends Component {
     } = this.state
 
     return (
-      <Row>
-        <Col>
-          <Country {...country} />
-          <TaxConfiguration
-            taxStart={taxStart}
-            taxEnd={taxEnd}
-            setTaxStart={this.onTaxChange('taxStart')}
-            setTaxEnd={this.onTaxChange('taxEnd')}
-          />
-          <TaxTable {...{ taxStart, taxEnd }} {...this.props} />
-        </Col>
-      </Row>
+      <>
+        <Row>
+          <Col md={12} lg={6}>
+            <Country {...country} />
+          </Col>
+          <Col md={12} lg={6}>
+            <TaxConfiguration
+              taxStart={taxStart}
+              taxEnd={taxEnd}
+              setTaxStart={this.onTaxChange('taxStart')}
+              setTaxEnd={this.onTaxChange('taxEnd')}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <TaxTable {...{ taxStart, taxEnd }} {...this.props} />
+          </Col>
+        </Row>
+      </>
     )
   }
 }
