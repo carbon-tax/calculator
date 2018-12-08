@@ -59,6 +59,7 @@ export default class TaxTable extends Component {
       emissions,
       taxStart,
       taxEnd,
+      emissionReduction,
       t
     } = this.props
 
@@ -71,7 +72,7 @@ export default class TaxTable extends Component {
       : years.map(createLinear(taxEnd, taxStart))
 
     const taxPerKg = taxPerTon.map((tax) => tax * 1e-3)
-    const expectedEmissions = YEARS.map(createExponential(0.98, country.emissions))
+    const expectedEmissions = YEARS.map(createExponential(emissionReduction, country.emissions))
     // in billions, expectedEmissions are in millions, thus taxPerKg
     const expectedTaxes = taxPerKg.map((tax, index) => tax * expectedEmissions[index])
 

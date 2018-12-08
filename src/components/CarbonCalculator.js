@@ -52,7 +52,7 @@ const Country = ({ emissions, population }) => (
   </Table>
 )
 
-const TaxConfiguration = ({ taxStart, taxEnd, setTaxStart, setTaxEnd }) => (
+const TaxConfiguration = ({ taxStart, taxEnd, emissionReduction, setTaxStart, setTaxEnd, setEmissionReduction }) => (
   <>
     <FormGroup row className='mt-2'>
       <Label sm={12}>
@@ -93,6 +93,20 @@ const TaxConfiguration = ({ taxStart, taxEnd, setTaxStart, setTaxEnd }) => (
         </Input>
       </Col>
     </FormGroup>
+    <FormGroup row>
+      <Label sm={3}>Reduzierung {CO2} Ausstoss</Label>
+      <Col sm={9}>
+        <Input
+          type='number'
+          placeholder='0%'
+          value={emissionReduction || ''}
+          onChange={setEmissionReduction}
+          min='0'
+          step={1}
+          className='text-right'
+        />
+      </Col>
+    </FormGroup>
   </>
 )
 
@@ -101,7 +115,9 @@ const largeNumbers = new Intl.NumberFormat('de-DE', {})
 class CarbonCalculator extends Component {
   state = {
     taxStart: undefined,
-    taxEnd: 200
+    taxEnd: 200,
+
+    emissionReduction: 0
   }
 
   onTaxChange = (prop) => (e) => {
@@ -110,11 +126,18 @@ class CarbonCalculator extends Component {
     })
   }
 
+  setEmissionReduction = (e) => {
+    this.setState({
+      emissionReduction: e.target.value
+    })
+  }
+
   render () {
     const { country } = this.props
     const {
       taxStart,
-      taxEnd
+      taxEnd,
+      emissionReduction
     } = this.state
 
     return (
@@ -127,14 +150,16 @@ class CarbonCalculator extends Component {
             <TaxConfiguration
               taxStart={taxStart}
               taxEnd={taxEnd}
+              emissionReduction={emissionReduction}
               setTaxStart={this.onTaxChange('taxStart')}
               setTaxEnd={this.onTaxChange('taxEnd')}
+              setEmissionReduction={this.setEmissionReduction}
             />
           </Col>
         </Row>
         <Row>
           <Col>
-            <TaxTable {...{ taxStart, taxEnd }} {...this.props} />
+            <TaxTable {...{ taxStart, taxEnd, emissionReduction: (100 - emissionReduction) / 100 }} {...this.props} />
           </Col>
         </Row>
       </>
