@@ -41,7 +41,8 @@ i18next
             samples: {
               brownCoal: 'Braunkohle',
               blackCoal: 'Steinkohle',
-              gas: 'Erdgas'
+              gas: 'Erdgas',
+              mix: 'Deutscher Kraftwerksmix'
             }
           },
 

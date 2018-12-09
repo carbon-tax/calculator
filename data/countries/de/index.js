@@ -70,7 +70,8 @@ export default {
       samples: {
         brownCoal: 1.008,
         blackCoal: 0.894,
-        gas: 0.409
+        gas: 0.409,
+        mix: 0.587
       }
     },
 
