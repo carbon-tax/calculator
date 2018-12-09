@@ -1,4 +1,4 @@
-import * as globals from '../../globals'
+import { fuels, taxPresets } from '../../globals'
 
 const population = 82792351
 
@@ -50,7 +50,7 @@ export default {
   },
 
   emissions: {
-    ...globals,
+    fuels,
 
     // http://iinas.org/gemis-download-121.html
     // http://iinas.org/tl_files/iinas/downloads/GEMIS/2017_GEMIS-Ergebnisse-Auszug.xlsx
@@ -95,5 +95,9 @@ export default {
         apple: 0.55
       }
     }
-  }
+  },
+
+  // http://www.in2013dollars.com/2010-dollars-in-2018
+  // https://www.google.de/search?q=usd+in+euro (December 2018)
+  taxPresets: taxPresets.map(([name, tax]) => [name, Math.round(tax * 1.16 * 0.88)])
 }

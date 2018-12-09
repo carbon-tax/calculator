@@ -3,6 +3,10 @@ import { withI18n } from 'react-i18next'
 
 import {
   Col,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
   FormGroup,
   Input,
   Label,
@@ -68,63 +72,105 @@ const Country = ({ emissions, population, population18Plus, taxRevenue }) => (
   </Table>
 )
 
-const TaxConfiguration = ({ taxStart, taxEnd, emissionReduction, setTaxStart, setTaxEnd, setEmissionReduction }) => (
-  <>
-    <FormGroup row className='mt-2'>
-      <Label sm={12}>
-        <b>{CO2} Steuer Parameter</b>
-      </Label>
-    </FormGroup>
-    <FormGroup row>
-      <Label sm={3}>2019</Label>
-      <Col sm={9}>
-        <Input
-          type='number'
-          placeholder='automatisch'
-          value={taxStart || ''}
-          onChange={setTaxStart}
-          min='0'
-          className='text-right'
-        />
-      </Col>
-    </FormGroup>
-    <FormGroup row>
-      <Label sm={3}>2030</Label>
-      <Col sm={9}>
-        <Input
-          type='number'
-          placeholder='Pro Tonne'
-          value={taxEnd || ''}
-          onChange={setTaxEnd}
-          min='0'
-          className='text-right'
-        />
-      </Col>
-    </FormGroup>
-    <FormGroup row>
-      <Label sm={3}>Erhöhung</Label>
-      <Col sm={9}>
-        <Input type='select'>
-          <option>linear</option>
-        </Input>
-      </Col>
-    </FormGroup>
-    <FormGroup row>
-      <Label sm={3}>Reduzierung {CO2} Ausstoss</Label>
-      <Col sm={9}>
-        <Input
-          type='number'
-          placeholder='0%'
-          value={emissionReduction || ''}
-          onChange={setEmissionReduction}
-          min='0'
-          step={1}
-          className='text-right'
-        />
-      </Col>
-    </FormGroup>
-  </>
-)
+class TaxConfiguration extends Component {
+  state = {
+    dopdownPreset: false
+  }
+
+  dropdownToggle = name => () => {
+    this.setState({
+      [name]: !this.state[name]
+    })
+  }
+
+  render () {
+    const {
+      taxStart,
+      taxEnd,
+      emissionReduction,
+      setTaxStart,
+      setTaxEnd,
+      setEmissionReduction,
+      taxPresets
+    } = this.props
+
+    return (
+      <>
+        <FormGroup row className='mt-2'>
+          <Label sm={6}>
+            <b>{CO2} Steuer Parameter</b>
+          </Label>
+          <Col sm={6}>
+            <Dropdown isOpen={this.state.dropdownPreset} toggle={this.dropdownToggle('dropdownPreset')}>
+              <DropdownToggle caret>
+              Voreinstellung
+              </DropdownToggle>
+              <DropdownMenu>
+                { taxPresets.map(([name, tax], index) =>
+                  <DropdownItem
+                    key={index}
+                    value={tax}
+                    onClick={setTaxEnd}
+                  >
+                    {name}
+                  </DropdownItem>
+                )}
+              </DropdownMenu>
+            </Dropdown>
+          </Col>
+        </FormGroup>
+        <FormGroup row>
+          <Label sm={6}>2019</Label>
+          <Col sm={6}>
+            <Input
+              type='number'
+              placeholder='automatisch'
+              value={taxStart || ''}
+              onChange={setTaxStart}
+              min='0'
+              className='text-right'
+            />
+          </Col>
+        </FormGroup>
+        <FormGroup row>
+          <Label sm={6}>2030</Label>
+          <Col sm={6}>
+            <Input
+              type='number'
+              placeholder='Pro Tonne'
+              value={taxEnd || ''}
+              onChange={setTaxEnd}
+              min='0'
+              className='text-right'
+            />
+          </Col>
+        </FormGroup>
+        <FormGroup row>
+          <Label sm={6}>Erhöhung</Label>
+          <Col sm={6}>
+            <Input type='select'>
+              <option>linear</option>
+            </Input>
+          </Col>
+        </FormGroup>
+        <FormGroup row>
+          <Label sm={6}>Reduzierung {CO2} Ausstoss</Label>
+          <Col sm={6}>
+            <Input
+              type='number'
+              placeholder='0%'
+              value={emissionReduction || ''}
+              onChange={setEmissionReduction}
+              min='0'
+              step={1}
+              className='text-right'
+            />
+          </Col>
+        </FormGroup>
+      </>
+    )
+  }
+}
 
 const largeNumbers = new Intl.NumberFormat('de-DE', {})
 
@@ -149,7 +195,7 @@ class CarbonCalculator extends Component {
   }
 
   render () {
-    const { country } = this.props
+    const { country, taxPresets } = this.props
     const {
       taxStart,
       taxEnd,
@@ -164,6 +210,7 @@ class CarbonCalculator extends Component {
           </Col>
           <Col md={12} lg={6}>
             <TaxConfiguration
+              taxPresets={taxPresets}
               taxStart={taxStart}
               taxEnd={taxEnd}
               emissionReduction={emissionReduction}

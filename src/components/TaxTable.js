@@ -111,7 +111,7 @@ export default class TaxTable extends Component {
                 <DropdownToggle caret>
                 Auswählen
                 </DropdownToggle>
-                <DropdownMenu onChange={(...args) => console.log('change', args)}>
+                <DropdownMenu>
                   { Object.keys(country.taxes).map(tax =>
                     <DropdownItem
                       key={tax}
