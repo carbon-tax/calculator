@@ -14,7 +14,7 @@ import { CO2, twoDecimals } from '../util'
 import TaxTable from './TaxTable'
 import Flag from './Flag'
 
-const Country = ({ emissions, population }) => (
+const Country = ({ emissions, population, population18Plus, taxRevenue }) => (
   <Table responsive>
     <thead>
       <tr>
@@ -33,6 +33,14 @@ const Country = ({ emissions, population }) => (
         </td>
       </tr>
       <tr>
+        <th scope='row'>
+          Erwachsene (18+)
+        </th>
+        <td align='right'>
+          {largeNumbers.format(population18Plus)}
+        </td>
+      </tr>
+      <tr>
         <th>
           {CO2} Emissionen [Mio t]
         </th>
@@ -46,6 +54,14 @@ const Country = ({ emissions, population }) => (
         </th>
         <td align='right'>
           {twoDecimals.format((emissions * 1e6) / population)}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          Steueraufkommen [Mrd €]
+        </th>
+        <td align='right'>
+          {twoDecimals.format(taxRevenue)}
         </td>
       </tr>
     </tbody>

@@ -1,5 +1,9 @@
 import * as globals from '../../globals'
 
+const population = 82792351
+
+const population18Plus = Math.round((100 - (0.79 + 3.79 + 6.59 + 2.37)) / 100 * population)
+
 export default {
   country: {
     /**
@@ -10,11 +14,23 @@ export default {
     emissions: 798,
 
     /**
-     * Population, 31.12.2017
+     * Population, 31.12.2017 (82'792'351)
      *
      * @see https://de.wikipedia.org/wiki/Deutschland
      */
-    population: 82792351,
+    population,
+
+    /**
+     * Population 18 or older (71'582'267, 86.46%)
+     *
+     * @see https://de.statista.com/statistik/daten/studie/1365/umfrage/bevoelkerung-deutschlands-nach-altersgruppen/
+     */
+    population18Plus,
+
+    /**
+     * Tax revenue, in billion Euros
+     */
+    taxRevenue: 734.500,
 
     /**
      * In billion Euros, 2017
@@ -27,7 +43,9 @@ export default {
       // TODO is there an international equivalent? Is it just tolls?
       salesImport: 55.857,
       energy: 41.022,
-      electricity: 6.944
+      electricity: 6.944,
+      // Universal Basic Income of EUR 1000 / month for persons 18 or older
+      universalBasicIncome: (population18Plus * 1000 * 12) / 1e9
     }
   },
 

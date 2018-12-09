@@ -14,7 +14,8 @@ i18next
               sales: 'Umsatzsteuer',
               salesImport: 'Einfuhrumsatzsteuer',
               energy: 'Energiesteuer',
-              electricity: 'Stromsteuer'
+              electricity: 'Stromsteuer',
+              universalBasicIncome: 'Grundeinkommen'
             }
           },
 
