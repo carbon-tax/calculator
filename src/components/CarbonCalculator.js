@@ -175,11 +175,24 @@ class TaxConfiguration extends Component {
 const largeNumbers = new Intl.NumberFormat('de-DE', {})
 
 class CarbonCalculator extends Component {
-  state = {
-    taxStart: undefined,
-    taxEnd: 200,
+  constructor (props) {
+    super(props)
 
-    emissionReduction: 0
+    const params = new URLSearchParams(window.location.search)
+
+    const taxStart = Number.parseInt(params.get('taxStart')) || 0
+    const taxEnd = Number.parseInt(params.get('taxEnd')) || Math.max(taxStart, props.taxPresets[0][1])
+
+    const emissionReduction = params.has('emissionReduction')
+      ? Number.parseInt((1 - params.get('emissionReduction')) * 100)
+      : 0
+
+    this.state = {
+      taxStart,
+      taxEnd,
+
+      emissionReduction
+    }
   }
 
   onTaxChange = (prop) => (e) => {

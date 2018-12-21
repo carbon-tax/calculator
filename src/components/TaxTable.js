@@ -1,3 +1,5 @@
+import copyToClipboard from 'clipboard-copy'
+
 import React, { Component } from 'react'
 
 import {
@@ -8,6 +10,8 @@ import {
   DropdownToggle,
   Table
 } from 'reactstrap'
+
+import Icon from './Icon'
 
 import {
   CO2,
@@ -23,10 +27,17 @@ import {
 } from '../util'
 
 export default class TaxTable extends Component {
-  state = {
-    dropdownTaxDeductions: false,
+  constructor (props) {
+    super(props)
 
-    taxDeductions: []
+    const params = new URLSearchParams(window.location.search)
+
+    this.state = {
+      dropdownTaxDeductions: false,
+      dropdownShare: false,
+
+      taxDeductions: params.has('taxDeductions') ? params.get('taxDeductions').split(',') : []
+    }
   }
 
   dropdownToggle = name => () => {
@@ -53,6 +64,26 @@ export default class TaxTable extends Component {
     })
   }
 
+  onCopyUrl = () => {
+    const {
+      taxStart,
+      taxEnd,
+      emissionReduction
+    } = this.props
+    const { taxDeductions } = this.state
+
+    const params = new URLSearchParams(Object.entries({
+      taxStart,
+      taxEnd,
+      emissionReduction,
+      taxDeductions
+    }).filter(([key, value]) => value && (Array.isArray(value) ? value.length : true))
+      .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}))
+
+    window.history.pushState(null, null, `${window.location.pathname}?${params.toString()}`)
+    copyToClipboard(window.location.href)
+  }
+
   render () {
     const {
       country,
@@ -64,6 +95,8 @@ export default class TaxTable extends Component {
     } = this.props
 
     const { taxDeductions } = this.state
+
+    const hasTaxDeductions = taxDeductions.length > 0
 
     // If there is a taxStart, 2019 should start with it.
     // Otherwise, the first value is also interpolated.
@@ -80,7 +113,18 @@ export default class TaxTable extends Component {
       <Table responsive>
         <thead>
           <tr>
-            <th />
+            <th>
+              <Dropdown size='sm' isOpen={this.state.dropdownShare} toggle={this.dropdownToggle('dropdownShare')}>
+                <DropdownToggle color='light'>
+                  <Icon icon='share-square' />
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem onClick={this.onCopyUrl}>
+                    <Icon icon='link' /> URL kopieren
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </th>
             <th>Einheit</th>
             { YEARS.map((year, index) => <th key={index}>{year}</th>) }
           </tr>
@@ -135,7 +179,7 @@ export default class TaxTable extends Component {
             ))
           }
           {
-            taxDeductions.length > 0 ? (
+            hasTaxDeductions ? (
               <tr>
                 <th scope='row' colSpan='2'>Verbleibende {CO2} Steuer</th>
                 { expectedTaxes.map(taxes => taxes - taxDeductions.map(tax => country.taxes[tax]).reduce((sum, current) => sum + current, 0)).map(Math.round).map(td) }
